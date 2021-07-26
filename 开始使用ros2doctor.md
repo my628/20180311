@@ -83,26 +83,115 @@
   
   2. ### 检查系统
 
-    你还可以检查正在运行的ROS2系统以确定问题的可能原因。
-    要查看```ros2doctor```在正在运行的系统上工作，让我们运行海龟模拟器，它的节点之间积极地相互通信。
+        你还可以检查正在运行的ROS2系统以确定问题的可能原因。
+        要查看```ros2doctor```在正在运行的系统上工作，让我们运行海龟模拟器，它的节点之间积极地相互通信。
 
-    通过打开一个新终端，采购ROS2并输入命令来启动系统：
-  
+        通过打开一个新终端，采购ROS2并输入命令来启动系统：
+
+        ```bash
+        ros2 run turtlesim turtlesim_node
+        ```
+
+        打开另一个终端并获取ROS2以运行Teleop控件：
+
+        ```bash
+        ros2 run turtlesim turtle_teleop_key
+        ```
+
+        现在在它自己的终端中再次运行```ros2doctor```。
+        你将看到上次在设置中运行```ros2doctor```时出现的警告和错误（如果有的话）。
+        接下来是一些与系统本身相关的新警告：
+
+        ```
+        UserWarning: Publisher without subscriber detected on /turtle1/color_sensor.
+        UserWarning: Publisher without subscriber detected on /turtle1/pose.
+        ```
+    
+    似乎```/turtlesim```节点将数据发布到两个未被订阅的主题，```ros2doctor```认为这可能会导致问题。
+
+    如果你运行命令来回显```/color_sensor```和```/pose```主题，这些警告将消失，因为发布者将拥有订阅者。
+
+    你可以通过在海龟模拟器仍在运行时打开两个新终端来尝试此操作，在每个终端中采购ROS2，并在自己的终端中运行以下每个命令：
+    
     ```bash
-    ros2 run turtlesim turtlesim_node
+    ros2 topic echo /turtle1/color_sensor
+    ros2 topic echo /turtle1/pose
     ```
-  
-    打开另一个终端并获取ROS2以运行Teleop控件：
-  
+
+    
+    然后再次在其终端中运行 ros2doctor。没有订阅者警告的发布者将消失。 （确保在运行 echo 的终端中输入 Ctrl+C）。
+
+    现在尝试退出turtlesim窗口或退出teleop并再次运行ros2doctor。现在系统中的一个节点不可用，您将看到更多警告，指示不同主题的发布者没有订阅者或没有发布者的订阅者。
+
+    在具有许多节点的复杂系统中，ros2doctor 对于确定通信问题的可能原因非常有用。
+
+    
+    
+    3. ### 获取完整报告
+
+        虽然 ros2doctor 会让你知道关于你的网络、系统等的警告，但使用 --report 参数运行它会给你更多的细节来帮助你分析问题。
+
+        如果您收到有关您的网络设置的警告并想确切地找出导致警告的配置部分，您可能需要使用 --report。
+
+        当您需要打开支持工单以获取 ROS 2 帮助时，这也非常有用。您可以将报告的相关部分复制并粘贴到工单中，以便帮助您的人员更好地了解您的环境并提供更好的帮助。
+
+        要获得完整报告，请在终端中输入以下命令：
+    
     ```bash
-    ros2 run turtlesim turtle_teleop_key
+    ros2 doctor --report
     ```
-  
-    现在在它自己的终端中再次运行```ros2doctor```。
-    你将看到上次在设置中运行```ros2doctor```时出现的警告和错误（如果有的话）。
-    接下来是一些与系统本身相关的新警告：
-  
+    
+    将返回分为五组的信息列表：
+    
     ```
-    UserWarning: Publisher without subscriber detected on /turtle1/color_sensor.
-    UserWarning: Publisher without subscriber detected on /turtle1/pose.
+    NETWORK CONFIGURATION
+    ...
+
+    PLATFORM INFORMATION
+    ...
+
+    RMW MIDDLEWARE
+    ...
+
+    ROS 2 INFORMATION
+    ...
+
+    TOPIC LIST
+    ...
     ```
+    
+    你可以根据运行```ros2 doctor```时收到的警告交叉检查此处的信息。 
+    例如，如果```ros2doctor```返回警告（前面提到过）你的发行版“不完全支持或测试”，你可以查看报告的ROS2信息部分：
+    
+    ```
+    distribution name      : <distro>
+    distribution type      : ros2
+    distribution status    : prerelease
+    release platforms      : {'<platform>': ['<version>']}
+    ```
+    
+    
+    在这里你可以看到分发状态为预发布，这解释了为什么不完全支持它。
+
+    
+    
+- ## 总结
+
+    ros2doctor会通知你ROS2设置和运行系统中的问题。
+    你可以使用--report参数更深入地了解这些警告背后的信息。
+
+    请记住，ros2doctor不是调试工具；
+    它不会帮助你解决代码中或系统实现方面的错误。
+
+    
+    
+- ## 相关内容
+
+    ros2doctor的README会告诉你更多关于不同参数的信息。 
+    你可能还想看看ros2doctor存储库，因为它对初学者非常友好，并且是开始贡献的好地方。
+
+    
+    
+- ## 下一步
+
+    你已完成初学者级别的教程！
