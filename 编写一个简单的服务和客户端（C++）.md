@@ -125,35 +125,35 @@
           
           ```main```函数逐行实现以下工作：
           
-              - 初始化 ROS 2 C++ 客户端库：
-              
-                  ```c++
-                  rclcpp::init(argc, argv);
-                  ```
-              
-              - 创建一个名为```add_two_ints_server```的节点：
+          - 初始化 ROS 2 C++ 客户端库：
 
-                  ```c++
-                  std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("add_two_ints_server");
-                  ```
-                  
-              - 为该节点创建一个名为add_two_ints的服务，并使用&add方法在网络上自动通告它：
+              ```c++
+              rclcpp::init(argc, argv);
+              ```
 
-                  ```c++
-                  rclcpp::Service<example_interfaces::srv::AddTwoInts>::SharedPtr service = node->create_service<example_interfaces::srv::AddTwoInts>("add_two_ints", &add);
-                  ```
-                  
-              - 准备好时打印日志消息：
+          - 创建一个名为```add_two_ints_server```的节点：
 
-                  ```c++
-                  RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Ready to add two ints.");
-                  ```
-                  
-              - 旋转节点，使服务可用。
+              ```c++
+              std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("add_two_ints_server");
+              ```
 
-                  ```c++
-                  rclcpp::spin(node);
-                  ```
+          - 为该节点创建一个名为add_two_ints的服务，并使用&add方法在网络上自动通告它：
+
+              ```c++
+              rclcpp::Service<example_interfaces::srv::AddTwoInts>::SharedPtr service = node->create_service<example_interfaces::srv::AddTwoInts>("add_two_ints", &add);
+              ```
+
+          - 准备好时打印日志消息：
+
+              ```c++
+              RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Ready to add two ints.");
+              ```
+
+          - 旋转节点，使服务可用。
+
+              ```c++
+              rclcpp::spin(node);
+              ```
                   
                   
       2. #### 添加可执行文件
