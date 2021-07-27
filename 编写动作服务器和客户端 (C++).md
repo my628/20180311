@@ -14,19 +14,19 @@
 
 - ## 背景
 
-  动作是 ROS 中的一种异步通信形式。
+动作是 ROS 中的一种异步通信形式。
 
-  动作客户端向动作服务器发送目标请求。  
+动作客户端向动作服务器发送目标请求。  
 
-  动作服务器向动作客户端发送目标反馈和结果。  
+动作服务器向动作客户端发送目标反馈和结果。  
 
  
 
 - ## 先决条件
 
-  你将需要```action_tutorials_interfaces```包和```Fibonacci.action```
+你将需要```action_tutorials_interfaces```包和```Fibonacci.action```
 
-  上一个教程中定义的接口，:ref:`ActionCreate`。
+上一个教程中定义的接口，:ref:`ActionCreate`。
 
  
 
