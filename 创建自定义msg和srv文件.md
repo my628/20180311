@@ -337,149 +337,141 @@
 
       2. #### 使用服务/客户端测试AddThreeInts.srv
 
-
-
           对上一教程中创建的服务/客户端包稍加修改，你可以看到“AddThreeInts.srv” 的运行情况。
 
           由于你要将原始的两个整数请求srv更改为三个整数请求srv，因此输出将略有不同。
+          
+          服务：
 
- 
+          ```c++
+           #include "rclcpp/rclcpp.hpp"
+           #include "tutorial_interfaces/srv/add_three_ints.hpp"                                        // CHANGE
 
-服务：
+           #include <memory>
 
-```c++
-#include "rclcpp/rclcpp.hpp"
-#include "tutorial_interfaces/srv/add_three_ints.hpp"                                        // CHANGE
+           void add(const std::shared_ptr<tutorial_interfaces::srv::AddThreeInts::Request> request,     // CHANGE
+                     std::shared_ptr<tutorial_interfaces::srv::AddThreeInts::Response>       response)  // CHANGE
+           {
+             response->sum = request->a + request->b + request->c;                                      // CHANGE
+             RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Incoming request\na: %ld" " b: %ld" " c: %ld",  // CHANGE
+                           request->a, request->b, request->c);                                         // CHANGE
+             RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "sending back response: [%ld]", (long int)response->sum);
+           }
 
-#include <memory>
+           int main(int argc, char **argv)
+           {
+             rclcpp::init(argc, argv);
 
-void add(const std::shared_ptr<tutorial_interfaces::srv::AddThreeInts::Request> request,     // CHANGE
-          std::shared_ptr<tutorial_interfaces::srv::AddThreeInts::Response>       response)  // CHANGE
-{
-  response->sum = request->a + request->b + request->c;                                      // CHANGE
-  RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Incoming request\na: %ld" " b: %ld" " c: %ld",  // CHANGE
-                request->a, request->b, request->c);                                         // CHANGE
-  RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "sending back response: [%ld]", (long int)response->sum);
-}
+             std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("add_three_ints_server");   // CHANGE
 
-int main(int argc, char **argv)
-{
-  rclcpp::init(argc, argv);
+             rclcpp::Service<tutorial_interfaces::srv::AddThreeInts>::SharedPtr service =               // CHANGE
+               node->create_service<tutorial_interfaces::srv::AddThreeInts>("add_three_ints",  &add);   // CHANGE
 
-  std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("add_three_ints_server");   // CHANGE
+             RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Ready to add three ints.");                     // CHANGE
 
-  rclcpp::Service<tutorial_interfaces::srv::AddThreeInts>::SharedPtr service =               // CHANGE
-    node->create_service<tutorial_interfaces::srv::AddThreeInts>("add_three_ints",  &add);   // CHANGE
+             rclcpp::spin(node);
+             rclcpp::shutdown();
+           }
+           ```
 
-  RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Ready to add three ints.");                     // CHANGE
 
-  rclcpp::spin(node);
-  rclcpp::shutdown();
-}
-```
 
- 
+           客户：
 
-客户：
+           ```c++
+           #include "rclcpp/rclcpp.hpp"
+           #include "tutorial_interfaces/srv/add_three_ints.hpp"                                       // CHANGE
 
-```c++
-#include "rclcpp/rclcpp.hpp"
-#include "tutorial_interfaces/srv/add_three_ints.hpp"                                       // CHANGE
+           #include <chrono>
+           #include <cstdlib>
+           #include <memory>
 
-#include <chrono>
-#include <cstdlib>
-#include <memory>
+           using namespace std::chrono_literals;
 
-using namespace std::chrono_literals;
+           int main(int argc, char **argv)
+           {
+             rclcpp::init(argc, argv);
 
-int main(int argc, char **argv)
-{
-  rclcpp::init(argc, argv);
+             if (argc != 4) { // CHANGE
+                 RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "usage: add_three_ints_client X Y Z");      // CHANGE
+                 return 1;
+             }
 
-  if (argc != 4) { // CHANGE
-      RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "usage: add_three_ints_client X Y Z");      // CHANGE
-      return 1;
-  }
+             std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("add_three_ints_client");  // CHANGE
+             rclcpp::Client<tutorial_interfaces::srv::AddThreeInts>::SharedPtr client =                // CHANGE
+               node->create_client<tutorial_interfaces::srv::AddThreeInts>("add_three_ints");          // CHANGE
 
-  std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("add_three_ints_client");  // CHANGE
-  rclcpp::Client<tutorial_interfaces::srv::AddThreeInts>::SharedPtr client =                // CHANGE
-    node->create_client<tutorial_interfaces::srv::AddThreeInts>("add_three_ints");          // CHANGE
+             auto request = std::make_shared<tutorial_interfaces::srv::AddThreeInts::Request>();       // CHANGE
+             request->a = atoll(argv[1]);
+             request->b = atoll(argv[2]);
+             request->c = atoll(argv[3]);                                                              // CHANGE
 
-  auto request = std::make_shared<tutorial_interfaces::srv::AddThreeInts::Request>();       // CHANGE
-  request->a = atoll(argv[1]);
-  request->b = atoll(argv[2]);
-  request->c = atoll(argv[3]);                                                              // CHANGE
+             while (!client->wait_for_service(1s)) {
+               if (!rclcpp::ok()) {
+                 RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Interrupted while waiting for the service. Exiting.");
+                 return 0;
+               }
+               RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "service not available, waiting again...");
+             }
 
-  while (!client->wait_for_service(1s)) {
-    if (!rclcpp::ok()) {
-      RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Interrupted while waiting for the service. Exiting.");
-      return 0;
-    }
-    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "service not available, waiting again...");
-  }
+             auto result = client->async_send_request(request);
+             // Wait for the result.
+             if (rclcpp::spin_until_future_complete(node, result) ==
+               rclcpp::FutureReturnCode::SUCCESS)
+             {
+               RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Sum: %ld", result.get()->sum);
+             } else {
+               RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Failed to call service add_three_ints");    // CHANGE
+             }
 
-  auto result = client->async_send_request(request);
-  // Wait for the result.
-  if (rclcpp::spin_until_future_complete(node, result) ==
-    rclcpp::FutureReturnCode::SUCCESS)
-  {
-    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Sum: %ld", result.get()->sum);
-  } else {
-    RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Failed to call service add_three_ints");    // CHANGE
-  }
+             rclcpp::shutdown();
+             return 0;
+           }
+           ```
 
-  rclcpp::shutdown();
-  return 0;
-}
-```
+           CMakeLists.txt：
 
-CMakeLists.txt：
+           ```
+           #...
 
-```
-#...
+           find_package(ament_cmake REQUIRED)
+           find_package(rclcpp REQUIRED)
+           find_package(tutorial_interfaces REQUIRED)         # CHANGE
 
-find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(tutorial_interfaces REQUIRED)         # CHANGE
+           add_executable(server src/add_two_ints_server.cpp)
+           ament_target_dependencies(server
+             rclcpp tutorial_interfaces)                      # CHANGE
 
-add_executable(server src/add_two_ints_server.cpp)
-ament_target_dependencies(server
-  rclcpp tutorial_interfaces)                      # CHANGE
+           add_executable(client src/add_two_ints_client.cpp)
+           ament_target_dependencies(client
+             rclcpp tutorial_interfaces)                      # CHANGE
 
-add_executable(client src/add_two_ints_client.cpp)
-ament_target_dependencies(client
-  rclcpp tutorial_interfaces)                      # CHANGE
+           install(TARGETS
+             server
+             client
+             DESTINATION lib/${PROJECT_NAME})
 
-install(TARGETS
-  server
-  client
-  DESTINATION lib/${PROJECT_NAME})
+           ament_package()
+           ```
 
-ament_package()
-```
+           package.xml：
 
-package.xml：
+           ```xml
+           <depend>tutorial_interfaces</depend>
+           ```
 
-```xml
-<depend>tutorial_interfaces</depend>
-```
+           进行上述编辑并保存所有更改后，构建包：
 
-进行上述编辑并保存所有更改后，构建包：
+           ```bash
+           colcon build --packages-select cpp_srvcli
+           ```
 
-```bash
-colcon build --packages-select cpp_srvcli
-```
+           然后打开两个新终端，在每个终端中读取并执行设置文件中的shell命令，然后运行：
 
-然后打开两个新终端，在每个终端中读取并执行设置文件中的shell命令，然后运行：
-
-```bash
-ros2 run cpp_srvcli server
-ros2 run cpp_srvcli client 2 3 1
-```
-
- 
-
- 
+           ```bash
+           ros2 run cpp_srvcli server
+           ros2 run cpp_srvcli client 2 3 1
+           ```
 
 - ## 总结
 
