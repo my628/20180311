@@ -1,32 +1,18 @@
-# 创建自定义 ROS 2 msg 和 srv 文件
+# 创建自定义msg和srv文件
 
 
 
-**目标：** 定义自定义接口文件（``.msg`` 和 ``.srv``）并将它们与 Python 和 C++ 节点一起使用。
+**目标：** 自定义接口文件（``.msg`` 和 ``.srv``）并将它们与Python和C++节点一起使用。
 
- 
-
-**教程级别：**初学者
-
- 
+**教程级别：** 初学者
 
 **时间：** 20 分钟
 
+**内容**
  
 
-.. 内容:: 内容
 
-：深度：2
-
-：当地的：
-
- 
-
-背景
-
-----------
-
- 
+- ## 背景
 
 在之前的教程中，您使用消息和服务接口来了解 :ref:`topics <ROS2Topics>`、:ref:`services <ROS2Services>` 和简单的发布者/订阅者（:ref:`C++<CppPubSub>`/:ref :`Python<PyPubSub>`) 和服务/客户端 (:ref:`C++<CppSrvCli>`/:ref:`Python<PySrvCli>`) 节点。
 
