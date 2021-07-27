@@ -14,341 +14,338 @@
 
 - ## 背景
 
-动作是ROS中的一种异步通信形式。
+  动作是ROS中的一种异步通信形式。
 
-动作客户端向动作服务器发送目标请求。
+  动作客户端向动作服务器发送目标请求。
 
-动作服务器向动作客户端发送目标反馈和结果。
+  动作服务器向动作客户端发送目标反馈和结果。
 
 
 - ## 先决条件
 
-你将需要```action_tutorials_interfaces```包和```Fibonacci.action```
+  你将需要action_tutorials_interfaces包和Fibonacci.action
 
-上一个教程中定义的接口，:ref:`ActionCreate`。
+  上一个教程中定义的接口，[ActionCreate]。
 
- 
+
 
 - ## 任务
 
-1. ### 创建action_tutorials_cpp包
+  1. ### 创建action_tutorials_cpp包
 
-正如我们在[CreatePkg]教程中看到的，我们需要创建一个新包来保存我们的C++ 和支持代码。
-
- 
-
-1.1. #### 创建action_tutorials_cpp包 
+      正如我们在[CreatePkg]教程中看到的，我们需要创建一个新包来保存我们的C++ 和支持代码。
 
  
 
-进入你在 :ref:`上一教程 <ActionCreate>` 中创建的操作工作区（记得找到工作区的源），并为 C++ 操作服务器创建一个新包：
+      1. #### 创建action_tutorials_cpp包 
 
-```bash
-cd ~/action_ws/src
-ros2 pkg create --dependencies action_tutorials_interfaces rclcpp rclcpp_action rclcpp_components -- action_tutorials_cpp
-```
+          进入你在[上一教程]中创建的操作工作区（记得找到工作区的源），并为C++操作服务器创建一个新包：
+
+          ```bash
+          cd ~/action_ws/src
+          ros2 pkg create --dependencies action_tutorials_interfaces rclcpp rclcpp_action rclcpp_components -- action_tutorials_cpp
+          ```
 
 
-1.2. 添加可见性控制 
+      2. #### 添加可见性控制 
 
-为了使包在 Windows 上编译和工作，我们需要添加一些“可见性控制”。
+          为了使包在Windows上编译和工作，我们需要添加一些“可见性控制”。
 
-有关为什么需要这样做的详细信息，请参阅[此处](https://docs.microsoft.com/en-us/cpp/cpp/dllexport-dllimport)。
+          有关为什么需要这样做的详细信息，请参阅[此处](https://docs.microsoft.com/en-us/cpp/cpp/dllexport-dllimport)。
 
-打开action_tutorials_cpp/include/action_tutorials_cpp/visibility_control.h，放入如下代码：
+          打开action_tutorials_cpp/include/action_tutorials_cpp/visibility_control.h，放入如下代码：
 
-```C++
-#ifndef ACTION_TUTORIALS_CPP__VISIBILITY_CONTROL_H_
-#define ACTION_TUTORIALS_CPP__VISIBILITY_CONTROL_H_
+          ```C++
+          #ifndef ACTION_TUTORIALS_CPP__VISIBILITY_CONTROL_H_
+          #define ACTION_TUTORIALS_CPP__VISIBILITY_CONTROL_H_
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+          #ifdef __cplusplus
+          extern "C"
+          {
+          #endif
 
-// This logic was borrowed (then namespaced) from the examples on the gcc wiki:
-//     https://gcc.gnu.org/wiki/Visibility
+          // This logic was borrowed (then namespaced) from the examples on the gcc wiki:
+          //     https://gcc.gnu.org/wiki/Visibility
 
-#if defined _WIN32 || defined __CYGWIN__
-  #ifdef __GNUC__
-    #define ACTION_TUTORIALS_CPP_EXPORT __attribute__ ((dllexport))
-    #define ACTION_TUTORIALS_CPP_IMPORT __attribute__ ((dllimport))
-  #else
-    #define ACTION_TUTORIALS_CPP_EXPORT __declspec(dllexport)
-    #define ACTION_TUTORIALS_CPP_IMPORT __declspec(dllimport)
-  #endif
-  #ifdef ACTION_TUTORIALS_CPP_BUILDING_DLL
-    #define ACTION_TUTORIALS_CPP_PUBLIC ACTION_TUTORIALS_CPP_EXPORT
-  #else
-    #define ACTION_TUTORIALS_CPP_PUBLIC ACTION_TUTORIALS_CPP_IMPORT
-  #endif
-  #define ACTION_TUTORIALS_CPP_PUBLIC_TYPE ACTION_TUTORIALS_CPP_PUBLIC
-  #define ACTION_TUTORIALS_CPP_LOCAL
-#else
-  #define ACTION_TUTORIALS_CPP_EXPORT __attribute__ ((visibility("default")))
-  #define ACTION_TUTORIALS_CPP_IMPORT
-  #if __GNUC__ >= 4
-    #define ACTION_TUTORIALS_CPP_PUBLIC __attribute__ ((visibility("default")))
-    #define ACTION_TUTORIALS_CPP_LOCAL  __attribute__ ((visibility("hidden")))
-  #else
-    #define ACTION_TUTORIALS_CPP_PUBLIC
-    #define ACTION_TUTORIALS_CPP_LOCAL
-  #endif
-  #define ACTION_TUTORIALS_CPP_PUBLIC_TYPE
-#endif
+          #if defined _WIN32 || defined __CYGWIN__
+            #ifdef __GNUC__
+              #define ACTION_TUTORIALS_CPP_EXPORT __attribute__ ((dllexport))
+              #define ACTION_TUTORIALS_CPP_IMPORT __attribute__ ((dllimport))
+            #else
+              #define ACTION_TUTORIALS_CPP_EXPORT __declspec(dllexport)
+              #define ACTION_TUTORIALS_CPP_IMPORT __declspec(dllimport)
+            #endif
+            #ifdef ACTION_TUTORIALS_CPP_BUILDING_DLL
+              #define ACTION_TUTORIALS_CPP_PUBLIC ACTION_TUTORIALS_CPP_EXPORT
+            #else
+              #define ACTION_TUTORIALS_CPP_PUBLIC ACTION_TUTORIALS_CPP_IMPORT
+            #endif
+            #define ACTION_TUTORIALS_CPP_PUBLIC_TYPE ACTION_TUTORIALS_CPP_PUBLIC
+            #define ACTION_TUTORIALS_CPP_LOCAL
+          #else
+            #define ACTION_TUTORIALS_CPP_EXPORT __attribute__ ((visibility("default")))
+            #define ACTION_TUTORIALS_CPP_IMPORT
+            #if __GNUC__ >= 4
+              #define ACTION_TUTORIALS_CPP_PUBLIC __attribute__ ((visibility("default")))
+              #define ACTION_TUTORIALS_CPP_LOCAL  __attribute__ ((visibility("hidden")))
+            #else
+              #define ACTION_TUTORIALS_CPP_PUBLIC
+              #define ACTION_TUTORIALS_CPP_LOCAL
+            #endif
+            #define ACTION_TUTORIALS_CPP_PUBLIC_TYPE
+          #endif
 
-#ifdef __cplusplus
-}
-#endif
+          #ifdef __cplusplus
+          }
+          #endif
 
-#endif  // ACTION_TUTORIALS_CPP__VISIBILITY_CONTROL_H_
-```
-
- 
-
-2. ### 编写动作服务器
-
-让我们专注于编写一个动作服务器，使用我们在 :ref:`ActionCreate` 教程中创建的动作来计算斐波那契数列。
+          #endif  // ACTION_TUTORIALS_CPP__VISIBILITY_CONTROL_H_
+          ```
 
  
 
-2.1. 编写动作服务器代码 
+  2. ### 编写动作服务器
 
-打开action_tutorials_cpp/src/fibonacci_action_server.cpp，放入如下代码：
-
-```c++
-#include <functional>
-#include <memory>
-#include <thread>
-
-#include "action_tutorials_interfaces/action/fibonacci.hpp"
-#include "rclcpp/rclcpp.hpp"
-#include "rclcpp_action/rclcpp_action.hpp"
-#include "rclcpp_components/register_node_macro.hpp"
-
-#include "action_tutorials_cpp/visibility_control.h"
-
-namespace action_tutorials_cpp
-{
-class FibonacciActionServer : public rclcpp::Node
-{
-public:
-  using Fibonacci = action_tutorials_interfaces::action::Fibonacci;
-  using GoalHandleFibonacci = rclcpp_action::ServerGoalHandle<Fibonacci>;
-
-  ACTION_TUTORIALS_CPP_PUBLIC
-  explicit FibonacciActionServer(const rclcpp::NodeOptions & options = rclcpp::NodeOptions())
-  : Node("fibonacci_action_server", options)
-  {
-    using namespace std::placeholders;
-
-    this->action_server_ = rclcpp_action::create_server<Fibonacci>(
-      this,
-      "fibonacci",
-      std::bind(&FibonacciActionServer::handle_goal, this, _1, _2),
-      std::bind(&FibonacciActionServer::handle_cancel, this, _1),
-      std::bind(&FibonacciActionServer::handle_accepted, this, _1));
-  }
-
-private:
-  rclcpp_action::Server<Fibonacci>::SharedPtr action_server_;
-
-  rclcpp_action::GoalResponse handle_goal(
-    const rclcpp_action::GoalUUID & uuid,
-    std::shared_ptr<const Fibonacci::Goal> goal)
-  {
-    RCLCPP_INFO(this->get_logger(), "Received goal request with order %d", goal->order);
-    (void)uuid;
-    return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
-  }
-
-  rclcpp_action::CancelResponse handle_cancel(
-    const std::shared_ptr<GoalHandleFibonacci> goal_handle)
-  {
-    RCLCPP_INFO(this->get_logger(), "Received request to cancel goal");
-    (void)goal_handle;
-    return rclcpp_action::CancelResponse::ACCEPT;
-  }
-
-  void handle_accepted(const std::shared_ptr<GoalHandleFibonacci> goal_handle)
-  {
-    using namespace std::placeholders;
-    // this needs to return quickly to avoid blocking the executor, so spin up a new thread
-    std::thread{std::bind(&FibonacciActionServer::execute, this, _1), goal_handle}.detach();
-  }
-
-  void execute(const std::shared_ptr<GoalHandleFibonacci> goal_handle)
-  {
-    RCLCPP_INFO(this->get_logger(), "Executing goal");
-    rclcpp::Rate loop_rate(1);
-    const auto goal = goal_handle->get_goal();
-    auto feedback = std::make_shared<Fibonacci::Feedback>();
-    auto & sequence = feedback->partial_sequence;
-    sequence.push_back(0);
-    sequence.push_back(1);
-    auto result = std::make_shared<Fibonacci::Result>();
-
-    for (int i = 1; (i < goal->order) && rclcpp::ok(); ++i) {
-      // Check if there is a cancel request
-      if (goal_handle->is_canceling()) {
-        result->sequence = sequence;
-        goal_handle->canceled(result);
-        RCLCPP_INFO(this->get_logger(), "Goal canceled");
-        return;
-      }
-      // Update sequence
-      sequence.push_back(sequence[i] + sequence[i - 1]);
-      // Publish feedback
-      goal_handle->publish_feedback(feedback);
-      RCLCPP_INFO(this->get_logger(), "Publish feedback");
-
-      loop_rate.sleep();
-    }
-
-    // Check if goal is done
-    if (rclcpp::ok()) {
-      result->sequence = sequence;
-      goal_handle->succeed(result);
-      RCLCPP_INFO(this->get_logger(), "Goal succeeded");
-    }
-  }
-};  // class FibonacciActionServer
-
-}  // namespace action_tutorials_cpp
-
-RCLCPP_COMPONENTS_REGISTER_NODE(action_tutorials_cpp::FibonacciActionServer)
-
-```
- 
-
-前几行包括我们需要编译的所有头文件。
-
-接下来我们创建一个类，是一个派生类的```rclcpp :: Node```：
-
-```c++
-class FibonacciActionServer : public rclcpp::Node
-```
-
-```FibonacciActionServer```类的构造函数将节点名称初始化为```fibonacci_action_server```：
-
-```c++
-  explicit FibonacciActionServer(const rclcpp::NodeOptions & options = rclcpp::NodeOptions()) : Node("fibonacci_action_server", options)
-```
-
-构造函数还实例化了一个新的动作服务器：
-
-```c++
-    this->action_server_ = rclcpp_action::create_server<Fibonacci>(
-      this,
-      "fibonacci",
-      std::bind(&FibonacciActionServer::handle_goal, this, _1, _2),
-      std::bind(&FibonacciActionServer::handle_cancel, this, _1),
-      std::bind(&FibonacciActionServer::handle_accepted, this, _1));
-```
-
-一个动作服务器需要 6 件事：
+      让我们专注于编写一个动作服务器，使用我们在 :ref:`ActionCreate` 教程中创建的动作来计算斐波那契数列。
 
  
 
-1. 模板化的动作类型名称：“Fibonacci”。
-2. 将操作添加到的ROS2节点：```this```。
-3. 动作名称：```'fibonacci'```。
-4. 处理目标的回调函数：```handle_goal```。
-5. 处理取消的回调函数：```handle_cancel```。
-6. 用于处理目标接受的回调函数：```handle_accept```。
- 
+      1. #### 编写动作服务器代码 
 
-文件中的下一个是各种回调的实现。
+          打开action_tutorials_cpp/src/fibonacci_action_server.cpp，放入如下代码：
 
-请注意，所有回调都需要快速返回，否则我们可能会饿死 executor。
+          ```c++
+          #include <functional>
+          #include <memory>
+          #include <thread>
 
-我们从处理新目标的回调开始：
+          #include "action_tutorials_interfaces/action/fibonacci.hpp"
+          #include "rclcpp/rclcpp.hpp"
+          #include "rclcpp_action/rclcpp_action.hpp"
+          #include "rclcpp_components/register_node_macro.hpp"
 
-```c++
-  rclcpp_action::GoalResponse handle_goal(
-    const rclcpp_action::GoalUUID & uuid,
-    std::shared_ptr<const Fibonacci::Goal> goal)
-  {
-    RCLCPP_INFO(this->get_logger(), "Received goal request with order %d", goal->order);
-    (void)uuid;
-    return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
-  }
-```
+          #include "action_tutorials_cpp/visibility_control.h"
 
-此实现仅接受所有目标。
+          namespace action_tutorials_cpp
+          {
+          class FibonacciActionServer : public rclcpp::Node
+          {
+          public:
+            using Fibonacci = action_tutorials_interfaces::action::Fibonacci;
+            using GoalHandleFibonacci = rclcpp_action::ServerGoalHandle<Fibonacci>;
 
-接下来是处理取消的回调：
+            ACTION_TUTORIALS_CPP_PUBLIC
+            explicit FibonacciActionServer(const rclcpp::NodeOptions & options = rclcpp::NodeOptions())
+            : Node("fibonacci_action_server", options)
+            {
+              using namespace std::placeholders;
 
-```c++
-  rclcpp_action::CancelResponse handle_cancel(
-    const std::shared_ptr<GoalHandleFibonacci> goal_handle)
-  {
-    RCLCPP_INFO(this->get_logger(), "Received request to cancel goal");
-    (void)goal_handle;
-    return rclcpp_action::CancelResponse::ACCEPT;
-  }
-```
+              this->action_server_ = rclcpp_action::create_server<Fibonacci>(
+                this,
+                "fibonacci",
+                std::bind(&FibonacciActionServer::handle_goal, this, _1, _2),
+                std::bind(&FibonacciActionServer::handle_cancel, this, _1),
+                std::bind(&FibonacciActionServer::handle_accepted, this, _1));
+            }
 
-这个实现只是告诉客户端它接受了取消。
+          private:
+            rclcpp_action::Server<Fibonacci>::SharedPtr action_server_;
 
-最后一个回调接受一个新目标并开始处理它：
+            rclcpp_action::GoalResponse handle_goal(
+              const rclcpp_action::GoalUUID & uuid,
+              std::shared_ptr<const Fibonacci::Goal> goal)
+            {
+              RCLCPP_INFO(this->get_logger(), "Received goal request with order %d", goal->order);
+              (void)uuid;
+              return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+            }
 
-```c++
-  void handle_accepted(const std::shared_ptr<GoalHandleFibonacci> goal_handle)
-  {
-    using namespace std::placeholders;
-    // this needs to return quickly to avoid blocking the executor, so spin up a new thread
-    std::thread{std::bind(&FibonacciActionServer::execute, this, _1), goal_handle}.detach();
-  }
-```
+            rclcpp_action::CancelResponse handle_cancel(
+              const std::shared_ptr<GoalHandleFibonacci> goal_handle)
+            {
+              RCLCPP_INFO(this->get_logger(), "Received request to cancel goal");
+              (void)goal_handle;
+              return rclcpp_action::CancelResponse::ACCEPT;
+            }
 
-由于执行是一个长时间运行的操作，我们产生一个线程来完成实际工作并快速从```handle_accepted```返回。
+            void handle_accepted(const std::shared_ptr<GoalHandleFibonacci> goal_handle)
+            {
+              using namespace std::placeholders;
+              // this needs to return quickly to avoid blocking the executor, so spin up a new thread
+              std::thread{std::bind(&FibonacciActionServer::execute, this, _1), goal_handle}.detach();
+            }
 
-所有进一步的处理和更新都在新线程的“execute”方法中完成：
+            void execute(const std::shared_ptr<GoalHandleFibonacci> goal_handle)
+            {
+              RCLCPP_INFO(this->get_logger(), "Executing goal");
+              rclcpp::Rate loop_rate(1);
+              const auto goal = goal_handle->get_goal();
+              auto feedback = std::make_shared<Fibonacci::Feedback>();
+              auto & sequence = feedback->partial_sequence;
+              sequence.push_back(0);
+              sequence.push_back(1);
+              auto result = std::make_shared<Fibonacci::Result>();
 
-```c++
-  void execute(const std::shared_ptr<GoalHandleFibonacci> goal_handle)
-  {
-    RCLCPP_INFO(this->get_logger(), "Executing goal");
-    rclcpp::Rate loop_rate(1);
-    const auto goal = goal_handle->get_goal();
-    auto feedback = std::make_shared<Fibonacci::Feedback>();
-    auto & sequence = feedback->partial_sequence;
-    sequence.push_back(0);
-    sequence.push_back(1);
-    auto result = std::make_shared<Fibonacci::Result>();
+              for (int i = 1; (i < goal->order) && rclcpp::ok(); ++i) {
+                // Check if there is a cancel request
+                if (goal_handle->is_canceling()) {
+                  result->sequence = sequence;
+                  goal_handle->canceled(result);
+                  RCLCPP_INFO(this->get_logger(), "Goal canceled");
+                  return;
+                }
+                // Update sequence
+                sequence.push_back(sequence[i] + sequence[i - 1]);
+                // Publish feedback
+                goal_handle->publish_feedback(feedback);
+                RCLCPP_INFO(this->get_logger(), "Publish feedback");
 
-    for (int i = 1; (i < goal->order) && rclcpp::ok(); ++i) {
-      // Check if there is a cancel request
-      if (goal_handle->is_canceling()) {
-        result->sequence = sequence;
-        goal_handle->canceled(result);
-        RCLCPP_INFO(this->get_logger(), "Goal canceled");
-        return;
-      }
-      // Update sequence
-      sequence.push_back(sequence[i] + sequence[i - 1]);
-      // Publish feedback
-      goal_handle->publish_feedback(feedback);
-      RCLCPP_INFO(this->get_logger(), "Publish feedback");
+                loop_rate.sleep();
+              }
 
-      loop_rate.sleep();
-    }
+              // Check if goal is done
+              if (rclcpp::ok()) {
+                result->sequence = sequence;
+                goal_handle->succeed(result);
+                RCLCPP_INFO(this->get_logger(), "Goal succeeded");
+              }
+            }
+          };  // class FibonacciActionServer
 
-    // Check if goal is done
-    if (rclcpp::ok()) {
-      result->sequence = sequence;
-      goal_handle->succeed(result);
-      RCLCPP_INFO(this->get_logger(), "Goal succeeded");
-    }
-  }
-```
+          }  // namespace action_tutorials_cpp
 
-这个工作线程每秒处理一个斐波那契数列的序列号，为每一步发布一个反馈更新。
+          RCLCPP_COMPONENTS_REGISTER_NODE(action_tutorials_cpp::FibonacciActionServer)
 
-当它完成处理时，它将“goal_handle”标记为成功，然后退出。
+          ```
+          
+          前几行包括我们需要编译的所有头文件。
 
-我们现在有一个功能齐全的动作服务器。让我们构建并运行它。
+          接下来我们创建一个类，是一个派生类的```rclcpp :: Node```：
+
+          ```c++
+          class FibonacciActionServer : public rclcpp::Node
+          ```
+
+          ```FibonacciActionServer```类的构造函数将节点名称初始化为```fibonacci_action_server```：
+
+          ```c++
+            explicit FibonacciActionServer(const rclcpp::NodeOptions & options = rclcpp::NodeOptions()) : Node("fibonacci_action_server", options)
+          ```
+
+          构造函数还实例化了一个新的动作服务器：
+
+          ```c++
+              this->action_server_ = rclcpp_action::create_server<Fibonacci>(
+                this,
+                "fibonacci",
+                std::bind(&FibonacciActionServer::handle_goal, this, _1, _2),
+                std::bind(&FibonacciActionServer::handle_cancel, this, _1),
+                std::bind(&FibonacciActionServer::handle_accepted, this, _1));
+          ```
+
+          一个动作服务器需要 6 件事：
+
+
+
+          1. 模板化的动作类型名称：“Fibonacci”。
+          2. 将操作添加到的ROS2节点：```this```。
+          3. 动作名称：```'fibonacci'```。
+          4. 处理目标的回调函数：```handle_goal```。
+          5. 处理取消的回调函数：```handle_cancel```。
+          6. 用于处理目标接受的回调函数：```handle_accept```。
+
+
+          文件中的下一个是各种回调的实现。
+
+          请注意，所有回调都需要快速返回，否则我们可能会饿死 executor。
+
+          我们从处理新目标的回调开始：
+
+          ```c++
+            rclcpp_action::GoalResponse handle_goal(
+              const rclcpp_action::GoalUUID & uuid,
+              std::shared_ptr<const Fibonacci::Goal> goal)
+            {
+              RCLCPP_INFO(this->get_logger(), "Received goal request with order %d", goal->order);
+              (void)uuid;
+              return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+            }
+          ```
+
+          此实现仅接受所有目标。
+
+          接下来是处理取消的回调：
+
+          ```c++
+            rclcpp_action::CancelResponse handle_cancel(
+              const std::shared_ptr<GoalHandleFibonacci> goal_handle)
+            {
+              RCLCPP_INFO(this->get_logger(), "Received request to cancel goal");
+              (void)goal_handle;
+              return rclcpp_action::CancelResponse::ACCEPT;
+            }
+          ```
+
+          这个实现只是告诉客户端它接受了取消。
+
+          最后一个回调接受一个新目标并开始处理它：
+
+          ```c++
+            void handle_accepted(const std::shared_ptr<GoalHandleFibonacci> goal_handle)
+            {
+              using namespace std::placeholders;
+              // this needs to return quickly to avoid blocking the executor, so spin up a new thread
+              std::thread{std::bind(&FibonacciActionServer::execute, this, _1), goal_handle}.detach();
+            }
+          ```
+
+          由于执行是一个长时间运行的操作，我们产生一个线程来完成实际工作并快速从```handle_accepted```返回。
+
+          所有进一步的处理和更新都在新线程的“execute”方法中完成：
+
+          ```c++
+            void execute(const std::shared_ptr<GoalHandleFibonacci> goal_handle)
+            {
+              RCLCPP_INFO(this->get_logger(), "Executing goal");
+              rclcpp::Rate loop_rate(1);
+              const auto goal = goal_handle->get_goal();
+              auto feedback = std::make_shared<Fibonacci::Feedback>();
+              auto & sequence = feedback->partial_sequence;
+              sequence.push_back(0);
+              sequence.push_back(1);
+              auto result = std::make_shared<Fibonacci::Result>();
+
+              for (int i = 1; (i < goal->order) && rclcpp::ok(); ++i) {
+                // Check if there is a cancel request
+                if (goal_handle->is_canceling()) {
+                  result->sequence = sequence;
+                  goal_handle->canceled(result);
+                  RCLCPP_INFO(this->get_logger(), "Goal canceled");
+                  return;
+                }
+                // Update sequence
+                sequence.push_back(sequence[i] + sequence[i - 1]);
+                // Publish feedback
+                goal_handle->publish_feedback(feedback);
+                RCLCPP_INFO(this->get_logger(), "Publish feedback");
+
+                loop_rate.sleep();
+              }
+
+              // Check if goal is done
+              if (rclcpp::ok()) {
+                result->sequence = sequence;
+                goal_handle->succeed(result);
+                RCLCPP_INFO(this->get_logger(), "Goal succeeded");
+              }
+            }
+          ```
+
+          这个工作线程每秒处理一个斐波那契数列的序列号，为每一步发布一个反馈更新。
+
+          当它完成处理时，它将“goal_handle”标记为成功，然后退出。
+
+          我们现在有一个功能齐全的动作服务器。让我们构建并运行它。
 
 
 
