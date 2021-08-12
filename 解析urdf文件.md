@@ -17,11 +17,16 @@ title: 解析URDF文件
     让我们首先在我们的沙箱中创建一个依赖于urdf解析器的包：
     
     ```bash
+    cd ~/galactic_ws/src
+    ros2 pkg create --build-type ament_cmake testbot_description urdf
+    cd testbot_description
     ```
     
     现在创建一个/urdf文件夹来存储我们刚刚创建的urdf文件：
     
     ```bash
+    mkdir urdf
+    cd urdf
     ```
     
     这遵循始终将机器人的URDF文件存储在名为MYROBOT_description的ROS包和名为/urdf的子文件夹中的约定。
