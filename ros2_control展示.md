@@ -84,15 +84,15 @@ git clone https://github.com/ros-controls/ros2_control_demos
 
 - 安装依赖项：
 
-```bash
-sudo apt install ros-foxy-realtime-tools ros-foxy-xacro ros-foxy-angles
-```
+    ```bash
+    sudo apt install ros-foxy-realtime-tools ros-foxy-xacro ros-foxy-angles
+    ```
 
 - 构建一切，例如 与：
 
-```
-colcon build --symlink-install
-```
+    ```
+    colcon build --symlink-install
+    ```
 
 - 不要忘记从安装文件夹中获取 setup.bash 的源代码！
 
@@ -106,7 +106,7 @@ colcon build --symlink-install
 
 后面的例子展示了更多关于 ros2_control-concepts 的细节和一些更高级的用例。
 
-### 机器人
+### RRbot
 
 RRBot 或“Revolute-Revolute Manipulator Robot”是一个简单的 3 连杆、2 关节臂，我们将用它来演示各种功能。
 
@@ -116,9 +116,121 @@ RRBot URDF 文件可以在 rrbot_description 包的 urdf 文件夹中找到。
 
 1. 要检查 RRBot 描述是否正常工作，请使用以下启动命令：
 
-    机器人
-
     ```bash
     ros2 launch rrbot_description view_robot.launch.py
 
     ```
+
+    > 注意：在终端中获得以下输出是可以的：警告：传递给 canTransform 参数 target_frame 的无效框架 ID“odom” - 框架不存在。
+    > 这是因为joint_state_publisher_gui 节点需要一些时间来启动。
+
+    Joint_state_publisher_gui 提供了一个 GUI 来为 rrbot 生成随机配置。
+
+    它立即显示在 Rviz 中。
+
+2. #### 要启动 RRBot 示例，请打开终端，获取 ROS2 工作区并使用以下命令执行其启动文件：
+
+    ```
+    ros2 launch ros2_control_demo_bringup rrbot.launch.py
+    ```
+
+    启动文件加载并启动机器人硬件、控制器并打开 RViz。
+
+    在启动终端中，你将看到硬件实现的大量输出显示其内部状态。
+
+    这只是示例性的目的，应该在硬件接口实现中尽可能避免。
+
+    如果你可以在 RViz 中看到两个橙色和一个黄色矩形，则一切正常。
+
+    不过，可以肯定的是，让我们在移动 RRBot 之前先自省一下控制系统。
+
+
+
+3. #### 检查硬件接口是否正确加载，打开另一个终端并执行：
+
+    ```bash
+    ros2 control list_hardware_interfaces
+    ```
+
+    你应该得到：
+
+    ```
+    command interfaces
+    joint1 / position[claimed]
+    joint2 / position[claimed]
+    state interfaces
+    joint1 / position
+    joint2 / position
+    ```
+
+    命令接口的标记[声称] 意味着控制器可以访问命令 RRBot。
+
+
+4. #### 检查控制器是否正在运行：
+
+    ```bash
+    ros2 control list_controllers
+    ```
+
+    你应该得到：
+
+    ```
+    joint_state_broadcaster[joint_state_broadcaster / JointStateBroadcaster] active
+    forward_position_controller[forward_command_controller / ForwardCommandController] active
+    ```
+
+    如果你从上面获得输出，你可以向转发命令控制器发送命令，或者：
+
+    1. 手动使用 ros2 cli 界面：
+
+        ```bash
+        ros2 topic pub / forward_position_controller / commands std_msgs / msg / Float64MultiArray "data:
+        - 0.5
+        - 0.5"
+
+        ```
+
+    2. 或者你可以启动一个演示节点，它每 5 秒循环发送两个目标：
+
+        ```bash
+        ros2 launch ros2_control_demo_bringup test_forward_position_controller.launch.py
+        ```
+
+    你现在应该看到橙色和黄色块在 RViz 中移动。
+
+    此外，你应该会在启动文件的终端中看到不断变化的状态。
+
+
+用于此演示的文件：
+
+- 启动文件：rrbot.launch.py
+
+- 控制器 yaml：rrbot_controllers.yaml
+
+- URDF 文件：rrbot.urdf.xacro
+
+    - 描述：rrbot_description.urdf.xacro
+    - ros2_control 标签：rrbot.ros2_control.xacro
+
+
+- RViz 配置：rrbot.rviz
+
+- 硬件接口插件：rrbot_system_position_only.cpp
+
+
+此演示中的控制器：
+
+关节状态广播（ros2_controllers 存储库）：doc
+转发命令控制器（ros2_controllers 存储库）：doc
+
+
+
+### DiffBot
+
+DiffBot，或“差分移动机器人”，是一种带有差分驱动的简单移动底座。
+
+机器人基本上是一个根据差动驱动运动学运动的盒子。
+
+DiffBot URDF 文件可以在 diffbot_description 包的 urdf 文件夹中找到。
+
+..TBD ......（在下一个公关中！）
