@@ -1,4 +1,4 @@
-
+# ros2_control Demos
 
 ## 目标
 
@@ -57,12 +57,68 @@ RRBot 和 DiffBot 的示例是简单的模拟，用于演示和测试 ros2_contr
 
     最常见的（位置、速度、加速度、作用力）已经在 hardware_interface/types/hardware_interface_type_values.hpp 中定义为常量。
 
-URDF 中 <ros2_control> 标签中的关节名称必须与控制器的配置兼容。
+3. URDF 中 <ros2_control> 标签中的关节名称必须与控制器的配置兼容。
 
-在 ros2_control 中，驱动程序的所有参数都在 URDF 中指定。
+    在 ros2_control 中，驱动程序的所有参数都在 URDF 中指定。
 
-ros2_control 框架使用 URDF 中的 <ros2_control> 标签。
+    ros2_control 框架使用 URDF 中的 <ros2_control> 标签。
 
-URDF 中 <ros2_control> 标签中的关节名称必须与控制器的配置兼容。
+    URDF 中 <ros2_control> 标签中的关节名称必须与控制器的配置兼容。
 
-从源代码构建
+
+
+## 从源代码构建
+
+```bash
+git clone https://github.com/ros-controls/ros2_control
+git clone https://github.com/ros-controls/ros2_controllers
+git clone https://github.com/ros-controls/ros2_control_demos
+
+```
+
+> 注意：ros2_control 和 ros2_controllers 包是为 Foxy 发布的，可以使用包管理器进行安装。
+
+> 我们提供官方发布和维护的 debian 包，可以通过 aptitude 轻松安装。
+
+> 但是，在某些情况下，尚未发布的演示或功能只能通过你自己工作区中的源代码构建获得。
+
+- 安装依赖项：
+
+```bash
+sudo apt install ros-foxy-realtime-tools ros-foxy-xacro ros-foxy-angles
+```
+
+- 构建一切，例如 与：
+
+```
+colcon build --symlink-install
+```
+
+- 不要忘记从安装文件夹中获取 setup.bash 的源代码！
+
+
+
+## 开始使用演示
+
+该存储库提供了以下简单示例机器人：一个 2 自由度机械手 - RRBot - 和一个移动式差动驱动底座 - DiffBot。
+
+前两个示例演示了运行这两个机器人的最小设置。 
+
+后面的例子展示了更多关于 ros2_control-concepts 的细节和一些更高级的用例。
+
+### 机器人
+
+RRBot 或“Revolute-Revolute Manipulator Robot”是一个简单的 3 连杆、2 关节臂，我们将用它来演示各种功能。
+
+它本质上是一个双倒立摆，在模拟器中演示了一些有趣的控制概念，最初是为 Gazebo 教程引入的。
+
+RRBot URDF 文件可以在 rrbot_description 包的 urdf 文件夹中找到。
+
+1. 要检查 RRBot 描述是否正常工作，请使用以下启动命令：
+
+    机器人
+
+    ```bash
+    ros2 launch rrbot_description view_robot.launch.py
+
+    ```
