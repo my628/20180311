@@ -33,7 +33,10 @@ roslaunch urdf_tutorial display.launch model:=urdf/06-flexible.urdf
 
 然后，我们可以看看我们是如何做到这一点的。
 
+
+
 ![image alt](https://raw.githubusercontent.com/ros/urdf_tutorial/master/images/flexible.png)
+
 
 
 
