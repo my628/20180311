@@ -16,36 +16,36 @@
 
 1. ### 无功能的Gazebo界面
 
-我们可以使用 Gazebo.launch 将我们已经创建的模型生成到 Gazebo 中
+    我们可以使用 Gazebo.launch 将我们已经创建的模型生成到 Gazebo 中
 
-```bash
-  roslaunch urdf_sim_tutorialgazebo.launch
-```
+    ```bash
+      roslaunch urdf_sim_tutorialgazebo.launch
+    ```
 
-这个启动文件
+    这个启动文件
 
-     - 将宏教程中的urdf加载到参数描述中（和以前一样）
-     - 开启一个空的gazebo世界
-     - 运行脚本以从参数中读取urdf并将其生成在Gazebo中。
-     - 默认情况下，gazebo gui 也会显示，如下所示：
+         - 将宏教程中的urdf加载到参数描述中（和以前一样）
+         - 开启一个空的gazebo世界
+         - 运行脚本以从参数中读取urdf并将其生成在Gazebo中。
+         - 默认情况下，gazebo gui 也会显示，如下所示：
 
-注意：如果直接从 git 下载包，那么请创建一个工作区并将这两个文件夹放在```yourworkspacefolder/src```下，并使用命令 catkin_make 进行编译。
-
-
-
-![image alt](http://wiki.ros.org/urdf/Tutorials/Using%20a%20URDF%20in%20Gazebo?action=AttachFile&do=get&target=Gazebo.png)
+    注意：如果直接从 git 下载包，那么请创建一个工作区并将这两个文件夹放在```yourworkspacefolder/src```下，并使用命令 catkin_make 进行编译。
 
 
 
-但是，它没有做任何事情，并且缺少 ROS 使用此机器人所需的许多关键信息。
+    ![image alt](http://wiki.ros.org/urdf/Tutorials/Using%20a%20URDF%20in%20Gazebo?action=AttachFile&do=get&target=Gazebo.png)
 
-以前我们一直使用joint_state_publisher来指定每个关节的姿势。
 
-然而，机器人本身应该在现实世界或gazebo中提供这些信息。
 
-然而，如果没有具体说明，Gazebo 不知道发布该信息。
+    但是，它没有做任何事情，并且缺少 ROS 使用此机器人所需的许多关键信息。
 
-为了让机器人能够交互（与你和 ROS），我们需要指定两件事：插件和传输。
+    以前我们一直使用joint_state_publisher来指定每个关节的姿势。
+
+    然而，机器人本身应该在现实世界或gazebo中提供这些信息。
+
+    然而，如果没有具体说明，Gazebo 不知道发布该信息。
+
+    为了让机器人能够交互（与你和 ROS），我们需要指定两件事：插件和传输。
 
 
 
