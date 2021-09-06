@@ -120,4 +120,125 @@
     缩放底盘，使其长约 2 米。
 
     你可以通过查看地面上 1x1 米的网格来估计这一点。
+    
+    ![image alt](https://raw.githubusercontent.com/osrf/gazebo_tutorials/master/guided_b/files/ftu4-scale_tool.png)
+    
+    
+3. 现在使用缩放工具展平底盘。 
 
+    单击并向下拖动蓝色标记，使机箱大约为原始尺寸的一半。
+    
+    ![image alt](https://raw.githubusercontent.com/osrf/gazebo_tutorials/master/guided_b/files/ftu4-chassis_scale.png)
+
+
+4. 我们希望降低底盘离地面更近。
+
+    为了给出准确的测量值，我们将使用 Link Inspector。
+
+    双击该框以显示 Inspector。
+
+    向下滚动到“链接”选项卡的底部以找到“姿势”参数并将 Z 更改为 0.4m，然后在框外单击（不要按 Enter）。
+
+    单击确定以保存更改并关闭检查器。
+    
+    ![image alt](https://raw.githubusercontent.com/osrf/gazebo_tutorials/master/guided_b/files/ftu4-chassis_height.png)
+    
+    
+    
+#### 前轮
+
+1. 让我们继续讨论前轮。 
+
+    首先从左侧面板的“插入”选项卡中插入圆柱体。
+        
+2. 默认方向的圆柱体不会很好地滚动。
+
+    让我们使用链接检查器沿 X 轴旋转它。
+    
+    双击圆柱体，滚动到底部的姿势部分，将滚动更改为 1.5707 弧度（90 度），然后在框外单击。
+    
+    暂时不要关闭 Inspector。
+    
+    ![image alt](https://raw.githubusercontent.com/osrf/gazebo_tutorials/master/guided_b/files/ftu4-wheel_rotate.png)
+    
+    
+3. 接下来，通过提供精确的尺寸来调整轮子的大小。
+
+    转到“视觉”选项卡以查看此链接中的视觉效果列表。
+    
+    应该只有一个。
+    
+    单击可视文本标签旁边的小箭头展开可视项。
+    
+    向下滚动到几何部分并将半径更改为 0.3m，将长度更改为 0.25m。
+    
+    ![image alt](https://raw.githubusercontent.com/osrf/gazebo_tutorials/master/guided_b/files/ftu4-wheel_visual.png)
+    
+    
+4. 你现在应该会在较大的圆柱体中看到一个较小的圆柱体。
+
+    这是意料之中的，因为我们只改变了视觉几何，但没有改变碰撞。
+    
+    “视觉”是链接的图形表示，不会影响物理模拟。
+    
+    另一方面，物理引擎使用“碰撞”进行碰撞检查。
+    
+    要同时更新车轮的碰撞，请转到“碰撞”选项卡，展开唯一的碰撞项目，然后输入相同的几何尺寸。
+    
+    半径：0.3m，长度：0.25m。 单击确定以保存更改并关闭检查器。
+
+
+5. 现在我们已经创建了我们的第一个轮子，我们将使用它作为模板并制作另一个。
+
+    ![image alt](https://raw.githubusercontent.com/osrf/gazebo_tutorials/master/guided_b/files/ftu4-copy_tool.png)
+    
+    
+6. 选择滚轮并单击顶部工具栏中的复制图标。
+    
+    ![image alt](https://raw.githubusercontent.com/osrf/gazebo_tutorials/master/guided_b/files/ftu4-copy_tool.png)
+    
+
+    现在让我们通过沿正 X 轴（场景中的红色标记）对齐底盘来确保车辆正确行驶。
+    
+    在下一步中添加车轮时，请确保它们位于沿 X 正轴延伸的车辆末端。
+
+
+7. 底盘和车轮目前是自由移动的车身。
+
+    为了限制它们的运动，我们将在每个车轮和底盘之间添加关节。
+    
+    单击顶部工具栏中的关节图标以显示关节创建对话框。
+    
+    ![image alt](https://raw.githubusercontent.com/osrf/gazebo_tutorials/master/guided_b/files/ftu4-joint_dialog.png)
+    
+    
+8. “关节创建”对话框包含通常为关节指定的关节属性。
+
+    在配置任何属性之前，系统会提示你选择关节的父链接和子链接。
+    
+    将鼠标移到场景中的底盘上以查看其突出显示，然后单击它以将其设置为关节的父级。
+
+9. 将鼠标移动到左前轮； 一条线现在应该从机箱的原点延伸到鼠标的末端。
+
+    单击滚轮将其设置为关节的子项。
+    
+    创建了一个新关节。
+    
+    默认情况下，它是一个旋转关节（如对话框中的关节类型部分所示），恰好是我们想要的关节类型。
+
+    > 注意：你可能会发现此时更改视角很有用。
+    > 这可以在上部工具栏中完成； 
+    > 单击带有橙色边的立方体图标。
+
+    ![image alt](https://raw.githubusercontent.com/osrf/gazebo_tutorials/master/guided_b/files/ftu4-wheel_joint.png)
+    
+    
+10. 接下来，我们需要配置车轮的旋转轴。
+
+    在 Joint Creation 对话框中，找到 Joint axis 部分并将轴更改为 Z (0, 0, 1)。
+    
+    注意轮子上的RGB关节视觉。
+    
+    你应该会看到一个黄色环现在出现在关节视觉的蓝色箭头上，表明它是旋转轴。
+    
+    ![image alt](https://raw.githubusercontent.com/osrf/gazebo_tutorials/master/guided_b/files/ftu4-wheel_rotation_axis.png)
