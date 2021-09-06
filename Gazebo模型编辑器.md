@@ -242,3 +242,93 @@
     你应该会看到一个黄色环现在出现在关节视觉的蓝色箭头上，表明它是旋转轴。
     
     ![image alt](https://raw.githubusercontent.com/osrf/gazebo_tutorials/master/guided_b/files/ftu4-wheel_rotation_axis.png)
+    
+    
+11. 要将车轮与底盘对齐，我们将使用“关节创建”对话框中“对齐链接”部分中的不同对齐选项。
+
+    首先我们将在 X 轴上对齐，所以点击 X Align Max 选项来查看对齐的结果。
+    
+    圆柱体应突出显示以指示其姿势已更改。
+    
+    ![image alt](https://raw.githubusercontent.com/osrf/gazebo_tutorials/master/guided_b/files/ftu4-wheel_align_x.png)
+    
+    
+12. 在我们的示例中，我们希望将车轮定位在与底盘齐平的位置。
+
+    要使轮子靠近，请单击 Y Align Max 选项。
+    
+    然而，这还不是我们想要的。
+    
+    单击 Y 对齐选项旁边的反向选项，将车轮的最小值（最大值的反向）与底盘的最大值对齐。
+    
+    请注意，反向选项应用于子链接，因为下面下拉列表中显示的默认对齐配置是子到父。
+    
+    如果设置了父到子配置，则反向选项将应用于父链接。
+    
+    按创建。
+    
+    ![](https://raw.githubusercontent.com/osrf/gazebo_tutorials/master/guided_b/files/ftu4-wheel_align_y_reverse.png)
+    
+    
+13. 要将轮子放置在地面上方，请双击轮子打开链接检查器。
+
+    我们可以使用对话框底部的姿势部分来移动滚轮。
+    
+    假设车轮的半径为 0.3m，继续将 Z 位置更改为 0.3m 以放置在地面上，然后按确定。
+
+
+14. 对另一个前轮重复关节创建过程和轴配置，确保 a) 底盘是关节的父级，车轮是子级，b) 旋转轴设置为 Z，c) 使用 Y Align Min 选项将右轮对齐，因为它在底盘的另一侧。
+
+    ![image alt](https://raw.githubusercontent.com/osrf/gazebo_tutorials/master/guided_b/files/ftu4-wheel_joints.png)
+    
+    
+#### 脚轮
+
+1. 要为车辆制作脚轮，请单击左侧面板上的球体按钮并将其插入场景中。
+
+    ![image alt](https://raw.githubusercontent.com/osrf/gazebo_tutorials/master/guided_b/files/ftu4-caster_sphere.png)
+
+
+2. 调整球体的大小，以与为前轮所做的相同的方式为其指定精确的尺寸。
+
+    转到“视觉”选项卡以查看此链接中的视觉对象列表，展开唯一的视觉项目，向下滚动到“几何”部分并将半径更改为 0.2m。
+
+    确保也对碰撞选项卡中的碰撞执行相同的操作。
+
+    ![image alt](https://raw.githubusercontent.com/osrf/gazebo_tutorials/master/guided_b/files/ftu4-caster_resize.png)
+
+
+
+3. 要在脚轮和底盘之间创建关节，请单击顶部工具栏中的关节图标，打开关节创建对话框。 
+
+    将鼠标移动到场景并选择底盘作为父链接，球体作为子链接。
+
+    ![image alt](https://raw.githubusercontent.com/osrf/gazebo_tutorials/master/guided_b/files/ftu4-caster_joint.png)
+
+
+
+4. 与前轮接头不同，脚轮可以向各个方向滚动，并且没有特定的旋转轴。
+
+    在 Gazebo 中，这是使用球形接头模拟的。
+
+    因此，在关节类型部分下，选择球关节选项。
+
+    你应该会看到场景中的关节视觉变化颜色以指示已设置不同的关节类型。
+
+    ![image alt](https://raw.githubusercontent.com/osrf/gazebo_tutorials/master/guided_b/files/ftu4-caster_joint_ball.png)
+
+
+
+5. 接下来，对齐脚轮，使其与底盘居中并位于后端。
+
+    在对齐链接部分中，选择 Y 对齐中心选项以将两个链接在 Y 轴上居中，然后选择 X 对齐最小选项以移动脚轮，使其正好位于车辆的后部。
+
+    按“创建”按钮完成关节创建过程。
+
+    ![image alt](https://raw.githubusercontent.com/osrf/gazebo_tutorials/master/guided_b/files/ftu4-caster_align.png)
+
+
+
+6. 最后，定位脚轮，使其正好位于地面上方。
+
+    通过打开链接检查器并将 Z 位置设置为 0.2m 来执行此操作。
