@@ -517,3 +517,132 @@ prompt("Press 'Enter' to continue once the plan is complete");
 结果可能如下所示：
 
 ![image alt](http://moveit2_tutorials.picknik.ai/_images/move_group_interface_tutorial_avoid_path.gif)
+
+
+## 将物体连接到机器人
+
+你可以将对象附加到机器人，使其随机器人几何体移动。
+
+这模拟了为了操纵物体而拾取物体。
+
+运动规划也应避免两个对象之间的碰撞。
+
+```c++
+moveit_msgs::msg::CollisionObject object_to_attach;
+object_to_attach.id = "cylinder1";
+
+shape_msgs::msg::SolidPrimitive cylinder_primitive;
+cylinder_primitive.type = primitive.CYLINDER;
+cylinder_primitive.dimensions.resize(2);
+cylinder_primitive.dimensions[primitive.CYLINDER_HEIGHT] = 0.20;
+cylinder_primitive.dimensions[primitive.CYLINDER_RADIUS] = 0.04;
+```
+
+我们为这个圆柱体定义了框架/姿势，以便它出现在夹具中
+
+```c++
+object_to_attach.header.frame_id = move_group.getEndEffectorLink();
+geometry_msgs::msg::Pose grab_pose;
+grab_pose.orientation.w = 1.0;
+grab_pose.position.z = 0.2;
+```
+
+首先，我们将对象添加到世界中（不使用向量）
+
+```c++
+object_to_attach.primitives.push_back(cylinder_primitive);
+object_to_attach.primitive_poses.push_back(grab_pose);
+object_to_attach.operation = object_to_attach.ADD;
+planning_scene_interface.applyCollisionObject(object_to_attach);
+```
+
+然后，我们将物体“附加”到机器人上。
+
+它使用 frame_id 来确定它连接到哪个机器人链接，我们还需要告诉 MoveIt 允许对象与抓手的手指链接发生碰撞。
+
+你还可以使用 applyAttachedCollisionObject 将对象直接附加到机器人。
+
+```c++
+RCLCPP_INFO(LOGGER, "Attach the object to the robot");
+std::vector<std::string> touch_links;
+touch_links.push_back("panda_rightfinger");
+touch_links.push_back("panda_leftfinger");
+move_group.attachObject(object_to_attach.id, "panda_hand", touch_links);
+
+visual_tools.publishText(text_pose, "Object_attached_to_robot", rvt::WHITE, rvt::XLARGE);
+visual_tools.trigger();
+
+/* Wait for MoveGroup to receive and process the attached collision object message */
+prompt("Press 'Enter' once the collision object attaches to the robot");
+/* visual_tools.prompt("Press 'next' in the RvizVisualToolsGui window once the new object is attached to the robot"); */
+```
+
+重新计划，但现在手头有对象。
+
+```c++
+move_group.setStartStateToCurrentState();
+success = (move_group.plan(my_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+RCLCPP_INFO(LOGGER, "Visualizing plan 7 (move around cuboid with cylinder) %s", success ? "" : "FAILED");
+/* visual_tools.publishTrajectoryLine(my_plan.trajectory_, joint_model_group); */
+visual_tools.trigger();
+prompt("Press 'Enter' once the plan is complete");
+/* visual_tools.prompt("Press 'next' in the RvizVisualToolsGui window once the plan is complete"); */
+```
+
+结果可能如下所示：
+
+![image alt](http://moveit2_tutorials.picknik.ai/_images/move_group_interface_tutorial_attached_object.gif)
+
+## 分离和移除对象
+
+现在，让我们从机器人的抓手上拆下气缸。
+
+```c++
+RCLCPP_INFO(LOGGER, "Detach the object from the robot");
+move_group.detachObject(object_to_attach.id);
+```
+
+在状态的 RViz 中显示文本
+
+```c++
+visual_tools.deleteAllMarkers();
+visual_tools.publishText(text_pose, "Object_detached_from_robot", rvt::WHITE, rvt::XLARGE);
+visual_tools.trigger();
+
+/* Wait for MoveGroup to receive and process the attached collision object message */
+prompt("Press 'Enter' once the collision object detaches from the robot");
+/* visual_tools.prompt("Press 'next' in the RvizVisualToolsGui window once the new object is detached from the robot"); */
+```
+
+现在，让我们从世界中移除对象。
+
+```c++
+RCLCPP_INFO(LOGGER, "Remove the objects from the world");
+std::vector<std::string> object_ids;
+object_ids.push_back(collision_object.id);
+object_ids.push_back(object_to_attach.id);
+planning_scene_interface.removeCollisionObjects(object_ids);
+```
+
+在状态的 RViz 中显示文本
+
+```c++
+visual_tools.publishText(text_pose, "Objects_removed", rvt::WHITE, rvt::XLARGE);
+visual_tools.trigger();
+
+/* Wait for MoveGroup to receive and process the attached collision object message */
+prompt("Press 'Enter' once the collision object disappears");
+/* visual_tools.prompt("Press 'next' in the RvizVisualToolsGui window to once the collision object disapears"); */
+```
+
+## 启动文件
+
+整个启动文件在 GitHub 上。
+
+本教程中的所有代码都可以从作为 MoveIt 设置一部分的 moveit_tutorials 包运行。
+
+## 关于设置公差的注意事项
+
+请注意，MoveGroupInterface 的 setGoalTolerance() 和相关方法设置了计划的容差，而不是执行的容差。
+
+如果要配置执行容差，如果使用 FollowJointTrajectory 控制器，则必须编辑 controller.yaml 文件，或者手动将其添加到计划器生成的轨迹消息中。
