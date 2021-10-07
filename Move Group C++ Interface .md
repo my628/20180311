@@ -59,6 +59,8 @@ ros2 launch moveit2_tutorials move_group_interface_tutorial.launch.py
 8. 物体与手腕分离（其颜色将变回绿色）。
 9. 对象从环境中移除。
 
+![image alt](http://moveit2_tutorials.picknik.ai/_images/move_group_interface_tutorial_robot_with_box.png)
+
 # 整个代码
 
 整个代码可以在 MoveIt GitHub 项目中看到。
