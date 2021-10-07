@@ -1,0 +1,9 @@
+本教程将展示如何配置带有差速驱动底座的移动机械手，以便你可以使用 MoveIt 为底座和其他自由度规划协调运动。
+
+虽然你可以使用 MoveIt 来规划基地，但不建议这样做。
+
+使用 Nav2 进行纯导航。
+
+请注意，本教程使用 Hello Robot 的 Stretch 平台进行演示，同样的方法可用于任何带有差速驱动底座的移动机械手。
+
+![alt image](http://moveit2_tutorials.picknik.ai/_images/intro.png)
